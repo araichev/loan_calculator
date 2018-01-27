@@ -9,6 +9,12 @@ name = "pypi"
 
 docutils = "*"
 plotly = "*"
+dash = "*"
+dash-renderer = "*"
+dash-core-components = "*"
+dash-html-components = "*"
+pandas = "*"
+python-dotenv = "*"
 
 
 [dev-packages]
