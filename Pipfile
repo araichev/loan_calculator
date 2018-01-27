@@ -7,18 +7,13 @@ name = "pypi"
 
 [packages]
 
-docutils = "*"
-plotly = "*"
-dash = "*"
-dash-renderer = "*"
-dash-core-components = "*"
-dash-html-components = "*"
 pandas = "*"
-python-dotenv = "*"
 
 
 [dev-packages]
 
+pytest = "*"
+jupyter = "*"
 
 
 [requires]

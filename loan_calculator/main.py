@@ -18,9 +18,10 @@ def freq_to_num(freq, allow_cts=False):
             'fortnightly': 26,
             'weekly': 52,
             'daily': 365,
-            'continuously': np.inf
-        }
+            'continuously': numpy.inf
+        }.
 
+    If not ``allow_cts``, then remove the ``'continuouly'`` option.
     Raise a ``ValueError`` in case of no frequency match.
     """
     d = {
@@ -49,6 +50,8 @@ def to_date_offset(num_per_year):
     Convert the given number of occurrences per year to its
     corresponding period (Pandas DateOffset object),
     e.g. map 4 to ``pd.DateOffset(months=3)``.
+    Return ``None`` if num_per_year is not one of
+    ``[1, 2, 3, 4, 6, 12, 26, 52, 365]``.
     """
     k = num_per_year
     if k in [1, 2, 3, 4, 6, 12]:
@@ -63,38 +66,41 @@ def to_date_offset(num_per_year):
         d = None
     return d
 
-def compute_period_interest_rate(interest, compounding_freq, payment_freq):
+def compute_period_interest_rate(interest_rate, compounding_freq,
+  payment_freq):
     """
     """
-    i = interest
-    k = freq_to_num(compounding_freq, allow_cts=True)
-    l = freq_to_num(payment_freq)
+    i = interest_rate
+    j = freq_to_num(compounding_freq, allow_cts=True)
+    k = freq_to_num(payment_freq)
 
-    if np.isinf(k):
-        return math.exp(i/l) - 1
+    if np.isinf(j):
+        return math.exp(i/k) - 1
     else:
-        return (1 + i/k)**(k/l) - 1
+        return (1 + i/j)**(j/k) - 1
 
-def build_principal_fn(principal, interest, compounding_freq, payment_freq,
-  num_years):
+def build_principal_fn(principal, interest_rate, compounding_freq,
+  payment_freq, num_years):
     """
     """
     P = principal
-    I = compute_period_interest_rate(interest, compounding_freq, payment_freq)
-    l = freq_to_num(payment_freq)
+    I = compute_period_interest_rate(interest_rate, compounding_freq,
+      payment_freq)
+    k = freq_to_num(payment_freq)
     y = num_years
 
     def p(t):
-        return P*(1 - ((1 + I)**t - 1)/((1 + I)**(y*l) - 1))
+        return P*(1 - ((1 + I)**t - 1)/((1 + I)**(y*k) - 1))
 
     return p
 
-def amortize_0(principal, interest, compounding_freq, payment_freq, num_years):
+def amortize_0(principal, interest_rate, compounding_freq, payment_freq,
+  num_years):
     """
     Givey the loan parameters
 
     - ``principal``: amount of loan (the principal)
-    - ``interest``: nominal annual interest rate (not as a percent),
+    - ``interest_rate``: nominal annual interest rate (not as a percent),
       e.g. 0.1 for 10%
     - ``compounding_freq``: number of interest compoundings per year
     - ``payment_freq``: number of payments per year
@@ -111,14 +117,15 @@ def amortize_0(principal, interest, compounding_freq, payment_freq, num_years):
     - https://www.vertex42.com/ExcelArticles/amortizatioy-calculatioy.html
     """
     P = principal
-    I = compute_period_interest_rate(interest, compounding_freq, payment_freq)
-    l = freq_to_num(payment_freq)
+    I = compute_period_interest_rate(interest_rate, compounding_freq,
+      payment_freq)
+    k = freq_to_num(payment_freq)
     y = num_years
 
-    return P*I/(1 - (1 + I)**(-y*l))
+    return P*I/(1 - (1 + I)**(-y*k))
 
 
-def amortize(principal, interest, compounding_freq, payment_freq,
+def amortize(principal, interest_rate, compounding_freq, payment_freq,
   num_years, fee=0, start_date=None, decimals=2):
     """
     Amortize a loan with the given parameters according to the function
@@ -141,13 +148,13 @@ def amortize(principal, interest, compounding_freq, payment_freq,
     Round all values to the given number of decimal places, but do not
     round if ``decimals is None``.
     """
-    A = amortize_0(principal, interest, compounding_freq, payment_freq,
+    A = amortize_0(principal, interest_rate, compounding_freq, payment_freq,
       num_years)
-    p = build_principal_fn(principal, interest, compounding_freq, payment_freq,
-      num_years)
-    l = freq_to_num(payment_freq)
+    p = build_principal_fn(principal, interest_rate, compounding_freq,
+      payment_freq, num_years)
+    k = freq_to_num(payment_freq)
     y = num_years
-    n = l*y
+    n = y*k
     f = (pd.DataFrame({'payment_seq': range(1, n + 1)})
         .assign(beginning_balance=lambda x: (x.payment_seq - 1).map(p))
         .assign(principal_payment=lambda x: x.beginning_balance.diff(-1)
@@ -155,7 +162,7 @@ def amortize(principal, interest, compounding_freq, payment_freq,
         .assign(interest_payment=lambda x: A - x.principal_payment)
         .assign(ending_balance=lambda x: x.beginning_balance
           - x.principal_payment)
-    )
+        )
 
     date_offset = to_date_offset(l)
     if start_date and date_offset:
@@ -181,10 +188,10 @@ def amortize(principal, interest, compounding_freq, payment_freq,
     d['return_rate'] = (d['interest_total'] + fee)/principal
 
     if decimals is not None:
-        for k, v in d.items():
-            if isinstance(v, pd.DataFrame):
-                d[k] = v.round(decimals)
+        for key, val in d.items():
+            if isinstance(val, pd.DataFrame):
+                d[key] = val.round(decimals)
             else:
-                d[k] = round(v, 2)
+                d[key] = round(val, 2)
 
     return d

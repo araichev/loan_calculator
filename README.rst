@@ -1,6 +1,6 @@
 Loan Calculator
 ****************
-A tiny Python 3.5+ library that calculates loans and amortized payment schedules similar to the calculator at https://www.calculator.net/business-loan-calculator.html.
+A tiny Python 3.5+ library that calculates loans and amortized payment schedules similar to the business loan calculator by `Calculator.net <https://www.calculator.net/business-loan-calculator.html>`_.
 
 
 Author
@@ -13,4 +13,5 @@ Changes
 
 v1.0.0, 2018-01-27
 -------------------
-First release
+- First release
+- Tested manually against Calculator.net but no automated tests yet
