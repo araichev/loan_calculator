@@ -13,7 +13,7 @@ setup(
     author='Alex Raichev',
     author_email='alex@raichev.net',
     packages=['loan_calculator'],
-    url='https://gitlab.com/araichev/loan_calculator',
+    url='https://github.com/araichev/loan_calculator',
     license=license,
     description='A Python 3.5+ loan calculator',
     long_description=readme,

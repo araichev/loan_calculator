@@ -69,6 +69,10 @@ def to_date_offset(num_per_year):
 def compute_period_interest_rate(interest_rate, compounding_freq,
   payment_freq):
     """
+    Compute the interest rate per payment period given
+    an annual interest rate, a compounding frequency, and a payment
+    freq.
+    See the function :func:`freq_to_num` for acceptable frequencies.
     """
     i = interest_rate
     j = freq_to_num(compounding_freq, allow_cts=True)
@@ -82,6 +86,9 @@ def compute_period_interest_rate(interest_rate, compounding_freq,
 def build_principal_fn(principal, interest_rate, compounding_freq,
   payment_freq, num_years):
     """
+    Compute the remaining loan principal, the loan balance,
+    as a function of the number of payments made.
+    Return the resulting function.
     """
     P = principal
     I = compute_period_interest_rate(interest_rate, compounding_freq,
@@ -132,7 +139,7 @@ def amortize(principal, interest_rate, compounding_freq, payment_freq,
     :func:`amortize_0`, and return a dictionary with the following keys
     and values:
 
-    - ``'periodic_payment'``: periodic paymentn amount according to
+    - ``'periodic_payment'``: periodic payment amount according to
       amortization
     - ``'num_payments'``: number of loan payments
     - ``'payment_schedule'``: DataFrame; schedule of loan payments
@@ -164,7 +171,7 @@ def amortize(principal, interest_rate, compounding_freq, payment_freq,
           - x.principal_payment)
         )
 
-    date_offset = to_date_offset(l)
+    date_offset = to_date_offset(k)
     if start_date and date_offset:
         # Kludge for pd.date_range not working easily here;
         # see https://github.com/pandas-dev/pandas/issues/2289
