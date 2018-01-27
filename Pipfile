@@ -1,0 +1,26 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+docutils = "*"
+plotly = "*"
+dash = "*"
+dash-renderer = "*"
+dash-core-components = "*"
+dash-html-components = "*"
+pandas = "*"
+python-dotenv = "*"
+
+
+[dev-packages]
+
+
+
+[requires]
+
+python_version = "3.5"
