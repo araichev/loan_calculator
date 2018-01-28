@@ -8,12 +8,12 @@ with open('LICENSE.txt') as f:
     license = f.read()
 
 setup(
-    name='loan_calculator',
+    name='loanulator',
     version='1.0.0',
     author='Alex Raichev',
     author_email='alex@raichev.net',
-    packages=['loan_calculator'],
-    url='https://github.com/araichev/loan_calculator',
+    packages=['loanulator'],
+    url='https://github.com/araichev/loanulator',
     license=license,
     description='A Python 3.5+ loan calculator',
     long_description=readme,

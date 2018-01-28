@@ -3,8 +3,8 @@ from itertools import product
 import pandas as pd
 import pytest
 
-from .context import loan_calculator
-from loan_calculator import *
+from .context import loanulator
+from loanulator import *
 
 
 def test_freq_to_num():

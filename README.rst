@@ -1,17 +1,18 @@
-Loan Calculator
+Loanulator
 ****************
 .. image:: http://mybinder.org/badge.svg
-    :target: http://mybinder.org:/repo/araichev/loan_calculator
+    :target: http://mybinder.org:/repo/araichev/loanulator
 
-.. image:: https://travis-ci.org/araichev/loan_calculator.svg?branch=master
-    :target: https://travis-ci.org/araichev/loan_calculator
+.. image:: https://travis-ci.org/araichev/loanulator.svg?branch=master
+    :target: https://travis-ci.org/araichev/loanulator
 
-A tiny Python 3.5+ library that amortizes loans similar to the business loan calculator by `Calculator.net <https://www.calculator.net/business-loan-calculator.html>`_.
+A tiny Python 3.5+ library that amortizes loans.
+Similar to the business loan calculator at `Calculator.net <https://www.calculator.net/business-loan-calculator.html>`_.
 
 
 Installation
 =============
-Using Pipenv, do ``pipenv install git+https://github.com/araichev/loan_calculator#egg=loan_calculator``
+Using Pipenv, do ``pipenv install git+https://github.com/araichev/loanulator#egg=loanulator``
 
 
 Usage
