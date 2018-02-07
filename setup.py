@@ -12,7 +12,6 @@ setup(
     version='1.0.0',
     author='Alex Raichev',
     author_email='alex@raichev.net',
-    packages=['payulator'],
     url='https://github.com/araichev/payulator',
     license=license,
     description='A Python 3.5+ loan calculator',
