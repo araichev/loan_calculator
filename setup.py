@@ -18,6 +18,6 @@ setup(
     long_description=readme,
     packages=find_packages(exclude=('tests', 'docs')),
     install_requires=[
-        pandas >= 0.22,
+        'pandas >= 0.22',
     ],
 )
