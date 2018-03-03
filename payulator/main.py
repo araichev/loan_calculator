@@ -104,7 +104,7 @@ def build_principal_fn(principal, interest_rate, compounding_freq,
 def amortize_0(principal, interest_rate, compounding_freq, payment_freq,
   num_years):
     """
-    Givey the loan parameters
+    Given the loan parameters
 
     - ``principal``: amount of loan (the principal)
     - ``interest_rate``: nominal annual interest rate (not as a percent),
@@ -120,8 +120,8 @@ def amortize_0(principal, interest_rate, compounding_freq, payment_freq,
 
     Notes:
 
-    - https://ey.wikipedia.org/wiki/Amortizatiokalculator
-    - https://www.vertex42.com/ExcelArticles/amortizatioy-calculatioy.html
+    - https://en.wikipedia.org/wiki/Amortization_calculator
+    - https://www.vertex42.com/ExcelArticles/amortization-calculation.html
     """
     P = principal
     I = compute_period_interest_rate(interest_rate, compounding_freq,
@@ -162,8 +162,8 @@ def amortize(principal, interest_rate, compounding_freq, payment_freq,
     k = freq_to_num(payment_freq)
     y = num_years
     n = y*k
-    f = (pd.DataFrame({'payment_seq': range(1, n + 1)})
-        .assign(beginning_balance=lambda x: (x.payment_seq - 1).map(p))
+    f = (pd.DataFrame({'payment_sequence': range(1, n + 1)})
+        .assign(beginning_balance=lambda x: (x.payment_sequence - 1).map(p))
         .assign(principal_payment=lambda x: x.beginning_balance.diff(-1)
           .fillna(x.beginning_balance.iat[-1]))
         .assign(interest_payment=lambda x: A - x.principal_payment)
@@ -202,3 +202,43 @@ def amortize(principal, interest_rate, compounding_freq, payment_freq,
                 d[key] = round(val, 2)
 
     return d
+
+def aggregate_payment_schedules(payment_schedules, freq=None):
+    """
+    Given a list of payment schedules in the form output by the
+    function :func:`amortize` do the following.
+    If all the schedules have a payment date column, then group by
+    payment date and resample at the given frequency by summing.
+    Otherwise, group by payment sequence and sum.
+    Return resulting DataFrame with the columns
+
+    - ``'payment_date'`` if ``'payment_date'`` is present in all
+      schedules given or ``'payment_sequence'`` otherwise
+    - ``'principal_payment'``
+    - ``'interest_payment'``.
+
+    """
+    if not payment_schedules:
+        raise ValueError("No payment schedules given to aggregate")
+
+    if all(['payment_date' in f.columns for f in payment_schedules]):
+        # Group by payment date
+        g = (
+            pd.concat(payment_schedules)
+            .filter(['payment_date', 'principal_payment', 'interest_payment'])
+            .groupby(pd.Grouper(key='payment_date', freq=freq))
+            .sum()
+            .sort_index()
+            .reset_index()
+        )
+    else:
+        # Group by payment sequence
+        g = (
+            pd.concat(payment_schedules)
+            .filter(['payment_sequence', 'principal_payment', 'interest_payment'])
+            .groupby('payment_sequence')
+            .sum()
+            .sort_index()
+            .reset_index()
+        )
+    return g
