@@ -89,3 +89,21 @@ def test_amortize():
     assert round(A['periodic_payment'], 2) == 29.96
     assert round(A['interest_and_fee_total'], 2) == 88.62
     assert A['payment_schedule'].shape[0] == A['num_payments']
+
+def test_aggregate_payment_schedules():
+    # Compare a few outputs to those of
+    # https://www.calculator.net/business-loan-calculator.html
+    for start_date, agg_key in [(None, 'payment_sequence'),
+      ('2018-01-01', 'payment_date')]:
+        A = amortize(1000, 0.05, 'quarterly', 'monthly', 3, fee=10,
+          start_date=start_date)
+        B = amortize(1000, 0.05, 'quarterly', 'monthly', 3, fee=10,
+          start_date=start_date)
+        f = aggregate_payment_schedules([A['payment_schedule'],
+          B['payment_schedule']])
+        expect_cols = {
+            agg_key,
+            'interest_payment',
+            'principal_payment',
+        }
+        assert set(f.columns) == expect_cols
