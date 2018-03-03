@@ -9,7 +9,7 @@ with open('LICENSE.txt') as f:
 
 setup(
     name='payulator',
-    version='1.0.0',
+    version='1.1.0',
     author='Alex Raichev',
     author_email='alex@raichev.net',
     url='https://github.com/araichev/payulator',
