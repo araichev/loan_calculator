@@ -29,6 +29,11 @@ Author
 Changes
 =======
 
+v1.1.0, 2018-03-03
+-------------------
+- Added the function ``aggregate_payment_schedules``
+
+
 v1.0.0, 2018-01-27
 -------------------
 - First release
