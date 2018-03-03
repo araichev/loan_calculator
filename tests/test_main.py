@@ -105,5 +105,6 @@ def test_aggregate_payment_schedules():
             agg_key,
             'interest_payment',
             'principal_payment',
+            'total_payment',
         }
         assert set(f.columns) == expect_cols

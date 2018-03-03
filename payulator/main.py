@@ -215,7 +215,8 @@ def aggregate_payment_schedules(payment_schedules, freq=None):
     - ``'payment_date'`` if ``'payment_date'`` is present in all
       schedules given or ``'payment_sequence'`` otherwise
     - ``'principal_payment'``
-    - ``'interest_payment'``.
+    - ``'interest_payment'``
+    - ``'total_payment'``: sum of principal and interest payments
 
     """
     if not payment_schedules:
@@ -241,4 +242,8 @@ def aggregate_payment_schedules(payment_schedules, freq=None):
             .sort_index()
             .reset_index()
         )
+
+    # Append total payment column
+    g['total_payment'] = g['interest_payment'] + g['principal_payment']
+
     return g
