@@ -42,10 +42,10 @@ def test_to_date_offset():
 def test_amortize_0():
     # Compare a few outputs to those of
     # https://www.calculator.net/business-loan-calculator.html
-    A = amortize_0(1000, 0.05, 'quarterly', 'monthly', 3)
+    A = amortize_0(1000, 0.05, 'quarterly', 'monthly', 3*12)
     assert round(A, 2) == 29.96
 
-    A = amortize_0(1000, 0.02, 'continuously', 'semiannually', 2)
+    A = amortize_0(1000, 0.02, 'continuously', 'semiannually', 2*2)
     assert round(A, 2) == 256.31
 
 def test_compute_period_interest_rate():
@@ -68,36 +68,36 @@ def test_build_principal_fn():
         8.60,
         0,
     ]
-    p = build_principal_fn(100, 0.07, 'monthly', 'monthly', 1)
+    p = build_principal_fn(100, 0.07, 'monthly', 'monthly', 12)
     for i in range(13):
         assert round(p(i), 2) == balances[i]
 
-def test_amortize():
+def test_compute_amortized_loan():
     # Compare a few outputs to those of
     # https://www.calculator.net/business-loan-calculator.html
-    A = amortize(1000, 0.05, 'quarterly', 'monthly', 3, fee=10)
+    A = compute_amortized_loan(1000, 0.05, 'quarterly', 'monthly',
+      3*12, fee=10)
     expect_keys = {
         'periodic_payment',
-        'num_payments',
         'payment_schedule',
         'interest_total',
         'interest_and_fee_total',
         'payment_total',
-        'return_rate',
+        'interest_and_fee_total/principal',
     }
     assert set(A.keys()) == expect_keys
     assert round(A['periodic_payment'], 2) == 29.96
     assert round(A['interest_and_fee_total'], 2) == 88.62
-    assert A['payment_schedule'].shape[0] == A['num_payments']
+    assert A['payment_schedule'].shape[0] == 3*12
 
 def test_aggregate_payment_schedules():
     # Compare a few outputs to those of
     # https://www.calculator.net/business-loan-calculator.html
     for start_date, agg_key in [(None, 'payment_sequence'),
       ('2018-01-01', 'payment_date')]:
-        A = amortize(1000, 0.05, 'quarterly', 'monthly', 3, fee=10,
+        A = compute_amortized_loan(1000, 0.05, 'quarterly', 'monthly', 3*12, fee=10,
           start_date=start_date)
-        B = amortize(1000, 0.05, 'quarterly', 'monthly', 3, fee=10,
+        B = compute_amortized_loan(1000, 0.05, 'quarterly', 'monthly', 3*12, fee=10,
           start_date=start_date)
         f = aggregate_payment_schedules([A['payment_schedule'],
           B['payment_schedule']])
