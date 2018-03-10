@@ -29,6 +29,13 @@ Author
 Changes
 =======
 
+v2.0.0, 2018-03-10
+-------------------
+- Changed function names
+- Replaced number of years with number of payments
+- Added a function to compute interest-only loans
+
+
 v1.1.0, 2018-03-03
 -------------------
 - Added the function ``aggregate_payment_schedules``

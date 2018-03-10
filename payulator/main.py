@@ -100,7 +100,7 @@ def build_principal_fn(principal, interest_rate, compounding_freq,
 
     return p
 
-def amortize_0(principal, interest_rate, compounding_freq, payment_freq,
+def amortize(principal, interest_rate, compounding_freq, payment_freq,
   num_payments):
     """
     Given the loan parameters
@@ -133,7 +133,7 @@ def compute_amortized_loan(principal, interest_rate,
   decimals=2):
     """
     Amortize a loan with the given parameters according to the function
-    :func:`amortize_0`, and return a dictionary with the following keys
+    :func:`amortize`, and return a dictionary with the following keys
     and values:
 
     - ``'periodic_payment'``: periodic payment amount according to
@@ -152,7 +152,7 @@ def compute_amortized_loan(principal, interest_rate,
     Round all values to the given number of decimal places, but do not
     round if ``decimals is None``.
     """
-    A = amortize_0(principal, interest_rate, compounding_freq, payment_freq,
+    A = amortize(principal, interest_rate, compounding_freq, payment_freq,
       num_payments)
     p = build_principal_fn(principal, interest_rate, compounding_freq,
       payment_freq, num_payments)
@@ -203,7 +203,9 @@ def compute_interest_only_loan(principal, interest_rate,
   payment_freq, num_payments, fee=0, start_date=None,
   decimals=2):
     """
-    ...
+    Create a payment schedule etc. for an interest-only loan
+    with the given parameters (see the doctstring of :func:`amortize`).
+    Return a dictionary with the following keys and values.
 
     - ``'payment_schedule'``: DataFrame; schedule of loan payments
       broken into principal payments and interest payments

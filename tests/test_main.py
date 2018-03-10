@@ -39,13 +39,13 @@ def test_to_date_offset():
 
     assert to_date_offset(10) is None
 
-def test_amortize_0():
+def test_amortize():
     # Compare a few outputs to those of
     # https://www.calculator.net/business-loan-calculator.html
-    A = amortize_0(1000, 0.05, 'quarterly', 'monthly', 3*12)
+    A = amortize(1000, 0.05, 'quarterly', 'monthly', 3*12)
     assert round(A, 2) == 29.96
 
-    A = amortize_0(1000, 0.02, 'continuously', 'semiannually', 2*2)
+    A = amortize(1000, 0.02, 'continuously', 'semiannually', 2*2)
     assert round(A, 2) == 256.31
 
 def test_compute_period_interest_rate():
@@ -88,7 +88,32 @@ def test_compute_amortized_loan():
     assert set(A.keys()) == expect_keys
     assert round(A['periodic_payment'], 2) == 29.96
     assert round(A['interest_and_fee_total'], 2) == 88.62
-    assert A['payment_schedule'].shape[0] == 3*12
+
+    # Check payment schedule
+    f = A['payment_schedule']
+    assert f.shape[0] == 3*12
+    f['payment'] = f['interest_payment'] + f['principal_payment']
+    assert (abs(f['payment'] - 29.96) <= 0.015).all()
+
+def test_compute_interest_only_loan():
+    A = compute_interest_only_loan(100, 0.12, 'monthly',
+      12, fee=13)
+    expect_keys = {
+        'payment_schedule',
+        'interest_total',
+        'interest_and_fee_total',
+        'payment_total',
+        'interest_and_fee_total/principal',
+    }
+    assert set(A.keys()) == expect_keys
+    assert round(A['interest_and_fee_total'], 2) == 25
+
+    # Check payment schedule
+    f = A['payment_schedule']
+    assert f.shape[0] == 12
+    assert (f['interest_payment'] == 1).all()
+    assert (f['principal_payment'].iloc[:-1] == 0).all()
+    assert f['principal_payment'].iat[-1] == 100
 
 def test_aggregate_payment_schedules():
     # Compare a few outputs to those of
