@@ -84,7 +84,7 @@ def compute_period_interest_rate(interest_rate, compounding_freq,
         return (1 + i/j)**(j/k) - 1
 
 def build_principal_fn(principal, interest_rate, compounding_freq,
-  payment_freq, num_years):
+  payment_freq, num_payments):
     """
     Compute the remaining loan principal, the loan balance,
     as a function of the number of payments made.
@@ -93,16 +93,15 @@ def build_principal_fn(principal, interest_rate, compounding_freq,
     P = principal
     I = compute_period_interest_rate(interest_rate, compounding_freq,
       payment_freq)
-    k = freq_to_num(payment_freq)
-    y = num_years
+    n = num_payments
 
     def p(t):
-        return P*(1 - ((1 + I)**t - 1)/((1 + I)**(y*k) - 1))
+        return P*(1 - ((1 + I)**t - 1)/((1 + I)**n - 1))
 
     return p
 
-def amortize_0(principal, interest_rate, compounding_freq, payment_freq,
-  num_years):
+def amortize(principal, interest_rate, compounding_freq, payment_freq,
+  num_payments):
     """
     Given the loan parameters
 
@@ -111,7 +110,7 @@ def amortize_0(principal, interest_rate, compounding_freq, payment_freq,
       e.g. 0.1 for 10%
     - ``compounding_freq``: number of interest compoundings per year
     - ``payment_freq``: number of payments per year
-    - ``num_years``: number of years of loan,
+    - ``num_payments``: number of payments in the loan term,
 
     return the periodic payment amount due to
     amortize the loan into equal payments occurring at the frequency
@@ -126,42 +125,38 @@ def amortize_0(principal, interest_rate, compounding_freq, payment_freq,
     P = principal
     I = compute_period_interest_rate(interest_rate, compounding_freq,
       payment_freq)
-    k = freq_to_num(payment_freq)
-    y = num_years
+    n = num_payments
+    return P*I/(1 - (1 + I)**(-n))
 
-    return P*I/(1 - (1 + I)**(-y*k))
-
-
-def amortize(principal, interest_rate, compounding_freq, payment_freq,
-  num_years, fee=0, start_date=None, decimals=2):
+def compute_amortized_loan(principal, interest_rate,
+  compounding_freq, payment_freq, num_payments, fee=0, start_date=None,
+  decimals=2):
     """
     Amortize a loan with the given parameters according to the function
-    :func:`amortize_0`, and return a dictionary with the following keys
+    :func:`amortize`, and return a dictionary with the following keys
     and values:
 
     - ``'periodic_payment'``: periodic payment amount according to
       amortization
-    - ``'num_payments'``: number of loan payments
     - ``'payment_schedule'``: DataFrame; schedule of loan payments
       broken into principal payments and interest payments
     - ``'interest_total'``: total interest paid on loan
     - ``'interest_and_fee_total'``: interest_total plus loan fee
     - ``'payment_total'``: total of all loan payments, including the
       loan fee
-    - ``'return_rate``: interest_and_fee_total/principal
+    - ``'interest_and_fee_total/principal``
+    - ``'notes'``: NaN for future notes
 
     If a start date is given (YYYY-MM-DD string), then include payment
     dates in the payment schedule.
     Round all values to the given number of decimal places, but do not
     round if ``decimals is None``.
     """
-    A = amortize_0(principal, interest_rate, compounding_freq, payment_freq,
-      num_years)
+    A = amortize(principal, interest_rate, compounding_freq, payment_freq,
+      num_payments)
     p = build_principal_fn(principal, interest_rate, compounding_freq,
-      payment_freq, num_years)
-    k = freq_to_num(payment_freq)
-    y = num_years
-    n = y*k
+      payment_freq, num_payments)
+    n = num_payments
     f = (pd.DataFrame({'payment_sequence': range(1, n + 1)})
         .assign(beginning_balance=lambda x: (x.payment_sequence - 1).map(p))
         .assign(principal_payment=lambda x: x.beginning_balance.diff(-1)
@@ -169,7 +164,75 @@ def amortize(principal, interest_rate, compounding_freq, payment_freq,
         .assign(interest_payment=lambda x: A - x.principal_payment)
         .assign(ending_balance=lambda x: x.beginning_balance
           - x.principal_payment)
-        )
+        .assign(notes=np.nan)
+    )
+
+    date_offset = to_date_offset(freq_to_num(payment_freq))
+    if start_date and date_offset:
+        # Kludge for pd.date_range not working easily here;
+        # see https://github.com/pandas-dev/pandas/issues/2289
+        f['payment_date'] = [pd.Timestamp(start_date)
+          + j*date_offset for j in range(n)]
+
+        # Put payment date first
+        cols = f.columns.tolist()
+        cols.remove('payment_date')
+        cols.insert(1, 'payment_date')
+        f = f[cols].copy()
+
+    # Bundle result into dictionary
+    d = {}
+    d['periodic_payment'] = A
+    d['payment_schedule'] = f
+    d['interest_total'] = f['interest_payment'].sum()
+    d['interest_and_fee_total'] = d['interest_total'] + fee
+    d['payment_total'] = d['interest_and_fee_total'] + principal
+    d['interest_and_fee_total/principal'] =\
+      d['interest_and_fee_total']/principal
+
+    if decimals is not None:
+        for key, val in d.items():
+            if isinstance(val, pd.DataFrame):
+                d[key] = val.round(decimals)
+            else:
+                d[key] = round(val, 2)
+
+    return d
+
+def compute_interest_only_loan(principal, interest_rate,
+  payment_freq, num_payments, fee=0, start_date=None,
+  decimals=2):
+    """
+    Create a payment schedule etc. for an interest-only loan
+    with the given parameters (see the doctstring of :func:`amortize`).
+    Return a dictionary with the following keys and values.
+
+    - ``'payment_schedule'``: DataFrame; schedule of loan payments
+      broken into principal payments and interest payments
+    - ``'interest_total'``: total interest paid on loan
+    - ``'interest_and_fee_total'``: interest_total plus loan fee
+    - ``'payment_total'``: total of all loan payments, including the
+      loan fee
+    - ``'interest_and_fee_total/principal``: interest_and_fee_total/principal
+    - ``'notes'``: NaN for future notes
+
+    If a start date is given (YYYY-MM-DD string), then include payment
+    dates in the payment schedule.
+    Round all values to the given number of decimal places, but do not
+    round if ``decimals is None``.
+    """
+    k = freq_to_num(payment_freq)
+    A = principal*interest_rate/k
+    n = num_payments
+    f = (pd.DataFrame({'payment_sequence': range(1, n + 1)})
+        .assign(beginning_balance=principal)
+        .assign(principal_payment=0)
+        .assign(interest_payment=A)
+        .assign(ending_balance=principal)
+        .assign(notes=np.nan)
+    )
+    f.principal_payment.iat[-1] = principal
+    f.ending_balance.iat[-1] = 0
 
     date_offset = to_date_offset(k)
     if start_date and date_offset:
@@ -186,13 +249,12 @@ def amortize(principal, interest_rate, compounding_freq, payment_freq,
 
     # Bundle result into dictionary
     d = {}
-    d['periodic_payment'] = A
-    d['num_payments'] = n
     d['payment_schedule'] = f
     d['interest_total'] = f['interest_payment'].sum()
     d['interest_and_fee_total'] = d['interest_total'] + fee
     d['payment_total'] = d['interest_and_fee_total'] + principal
-    d['return_rate'] = (d['interest_total'] + fee)/principal
+    d['interest_and_fee_total/principal'] =\
+      d['interest_and_fee_total']/principal
 
     if decimals is not None:
         for key, val in d.items():
