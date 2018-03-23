@@ -8,6 +8,7 @@ name = "pypi"
 [packages]
 
 pandas = "*"
+voluptuous = "*"
 
 
 [dev-packages]
