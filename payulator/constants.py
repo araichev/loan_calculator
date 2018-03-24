@@ -23,7 +23,7 @@ LOAN_ATTRS = [
     'payment_freq',
     'compounding_freq',  # optional
     'num_payments',
-    'start_date',
+    'first_payment_date',
     'fee',
 ]
 

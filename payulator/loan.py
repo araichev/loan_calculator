@@ -1,5 +1,7 @@
 from collections import OrderedDict
 from pathlib import Path
+import numbers
+import json
 
 import pandas as pd
 import voluptuous as vt
@@ -17,7 +19,7 @@ class Loan(object):
     def __init__(self, code=None,
       kind='amortized', principal=1, interest_rate=0,
       payment_freq='monthly', compounding_freq=None,
-      num_payments=1, fee=0, start_date=None):
+      num_payments=1, fee=0, first_payment_date=None):
         """
         Parameters are
 
@@ -34,6 +36,9 @@ class Loan(object):
           one of the keys of :const:`NUM_BY_FREQ`, e.g. 'monthly'
         - ``num_payments``: (integer) number of payments in the loan
           term
+        - ``fee``: (float) loan fee
+        - ``first_payment_date``: (YYYY-MM-DD date string) date of first loan
+          payment
         """
         timestamp = pd.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
         self.code = code or 'loan-' + timestamp
@@ -43,10 +48,13 @@ class Loan(object):
         self.payment_freq = payment_freq
         self.compounding_freq = compounding_freq or payment_freq
         self.num_payments = num_payments
-        self.start_date = start_date
+        self.first_payment_date = first_payment_date
         self.fee = fee
 
     def to_dict(self, ordered=False):
+        """
+        Return a dictionary of this Loan's attributes.
+        """
         if ordered:
             d = OrderedDict()
         else:
@@ -64,22 +72,22 @@ class Loan(object):
 
     def summarize(self, decimals=2):
         """
-        Return the result of :func:`helpers.compute_amortized_loan`
-        for an amortized loan or
-        :func:`helpers.compute_interest_only_loan` for an interest-only
-        loan.
+        Return the result of :func:`helpers.summarize_amortized_loan`
+        is this Loan is amortized or
+        :func:`helpers.summarize_interest_only_loan` if this Loan is
+        interest-only.
         """
         result = {}
         if self.kind == 'amortized':
-            result = hp.compute_amortized_loan(self.principal,
+            result = hp.summarize_amortized_loan(self.principal,
               self.interest_rate, self.compounding_freq,
               self.payment_freq, self.num_payments,
-              self.fee, self.start_date, decimals=decimals)
+              self.fee, self.first_payment_date, decimals=decimals)
         elif self.kind == 'interest_only':
-            result = hp.compute_interest_only_loan(self.principal,
+            result = hp.summarize_interest_only_loan(self.principal,
               self.interest_rate,
               self.payment_freq, self.num_payments,
-              self.fee, self.start_date, decimals=decimals)
+              self.fee, self.first_payment_date, decimals=decimals)
 
         return result
 
@@ -100,11 +108,14 @@ def check_loan_params(params):
           kinds))
 
     def check_pos(value):
-        if value > 0:
+        if isinstance(value, numbers.Number) and value > 0:
             return value
         raise vt.Invalid("Not a positive number")
 
-    check_nneg = vt.Schema(vt.Range(min=0))
+    def check_nneg(value):
+        if isinstance(value, numbers.Number) and value >= 0:
+            return value
+        raise vt.Invalid("Not a nonnegative number")
 
     def check_pos_int(value):
         if isinstance(value, int) and value > 0:
@@ -134,7 +145,7 @@ def check_loan_params(params):
         'payment_freq': check_freq,
         vt.Optional('compounding_freq'): check_freq,
         'num_payments': check_pos_int,
-        'start_date': check_date,
+        'first_payment_date': check_date,
         'fee': check_nneg,
     }, required=True, extra=vt.ALLOW_EXTRA)
 

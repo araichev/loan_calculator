@@ -118,8 +118,8 @@ def amortize(principal, interest_rate, compounding_freq, payment_freq,
 
     return A
 
-def compute_amortized_loan(principal, interest_rate,
-  compounding_freq, payment_freq, num_payments, fee=0, start_date=None,
+def summarize_amortized_loan(principal, interest_rate,
+  compounding_freq, payment_freq, num_payments, fee=0, first_payment_date=None,
   decimals=2):
     """
     Amortize a loan with the given parameters according to the function
@@ -158,10 +158,10 @@ def compute_amortized_loan(principal, interest_rate,
     )
 
     date_offset = to_date_offset(freq_to_num(payment_freq))
-    if start_date and date_offset:
+    if first_payment_date and date_offset:
         # Kludge for pd.date_range not working easily here;
         # see https://github.com/pandas-dev/pandas/issues/2289
-        f['payment_date'] = [pd.Timestamp(start_date)
+        f['payment_date'] = [pd.Timestamp(first_payment_date)
           + j*date_offset for j in range(n)]
 
         # Put payment date first
@@ -189,8 +189,8 @@ def compute_amortized_loan(principal, interest_rate,
 
     return d
 
-def compute_interest_only_loan(principal, interest_rate,
-  payment_freq, num_payments, fee=0, start_date=None,
+def summarize_interest_only_loan(principal, interest_rate,
+  payment_freq, num_payments, fee=0, first_payment_date=None,
   decimals=2):
     """
     Create a payment schedule etc. for an interest-only loan
@@ -225,10 +225,10 @@ def compute_interest_only_loan(principal, interest_rate,
     f.ending_balance.iat[-1] = 0
 
     date_offset = to_date_offset(k)
-    if start_date and date_offset:
+    if first_payment_date and date_offset:
         # Kludge for pd.date_range not working easily here;
         # see https://github.com/pandas-dev/pandas/issues/2289
-        f['payment_date'] = [pd.Timestamp(start_date)
+        f['payment_date'] = [pd.Timestamp(first_payment_date)
           + j*date_offset for j in range(n)]
 
         # Put payment date first
@@ -260,7 +260,8 @@ def aggregate_payment_schedules(payment_schedules, freq=None):
     Given a list of payment schedules in the form output by the
     function :func:`amortize` do the following.
     If all the schedules have a payment date column, then group by
-    payment date and resample at the given frequency by summing.
+    payment date and resample at the given Pandas frequency
+    (not a frequency in :const:`NUM_BY_FREQ`) by summing.
     Otherwise, group by payment sequence and sum.
     Return resulting DataFrame with the columns
 

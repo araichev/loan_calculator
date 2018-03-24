@@ -6,7 +6,7 @@ Payulator
 .. image:: https://travis-ci.org/araichev/payulator.svg?branch=master
     :target: https://travis-ci.org/araichev/payulator
 
-A tiny Python 3.5+ library that amortizes loans.
+A small Python 3.5+ library that calculates loan payments.
 Similar to the business loan calculator at `Calculator.net <https://www.calculator.net/business-loan-calculator.html>`_.
 
 
@@ -28,6 +28,12 @@ Author
 
 Changes
 =======
+
+v3.0.0, 2018-03-24
+-------------------
+- Changed function names
+- Added a Loan class
+
 
 v2.0.0, 2018-03-10
 -------------------
