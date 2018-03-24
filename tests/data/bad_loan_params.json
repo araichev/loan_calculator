@@ -1,0 +1,11 @@
+{
+    "code": "test-20180324",
+    "principal": 10000,
+    "interest_rate": 0.12,
+    "kind": "amortized",
+    "num_payments": 6.2,
+    "payment_freq": "monthly",
+    "first_payment_date": "2018-03-24",
+    "fee": 250,
+    "bingo": "bongo"
+}
