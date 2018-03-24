@@ -1,5 +1,3 @@
-from itertools import product
-
 import pandas as pd
 import pytest
 
@@ -72,10 +70,10 @@ def test_build_principal_fn():
     for i in range(13):
         assert round(p(i), 2) == balances[i]
 
-def test_compute_amortized_loan():
+def test_summarize_amortized_loan():
     # Compare a few outputs to those of
     # https://www.calculator.net/business-loan-calculator.html
-    A = compute_amortized_loan(1000, 0.05, 'quarterly', 'monthly',
+    A = summarize_amortized_loan(1000, 0.05, 'quarterly', 'monthly',
       3*12, fee=10)
     expect_keys = {
         'periodic_payment',
@@ -95,8 +93,8 @@ def test_compute_amortized_loan():
     f['payment'] = f['interest_payment'] + f['principal_payment']
     assert (abs(f['payment'] - 29.96) <= 0.015).all()
 
-def test_compute_interest_only_loan():
-    A = compute_interest_only_loan(100, 0.12, 'monthly',
+def test_summarize_interest_only_loan():
+    A = summarize_interest_only_loan(100, 0.12, 'monthly',
       12, fee=13)
     expect_keys = {
         'payment_schedule',
@@ -118,12 +116,12 @@ def test_compute_interest_only_loan():
 def test_aggregate_payment_schedules():
     # Compare a few outputs to those of
     # https://www.calculator.net/business-loan-calculator.html
-    for start_date, agg_key in [(None, 'payment_sequence'),
+    for first_payment_date, agg_key in [(None, 'payment_sequence'),
       ('2018-01-01', 'payment_date')]:
-        A = compute_amortized_loan(1000, 0.05, 'quarterly', 'monthly', 3*12, fee=10,
-          start_date=start_date)
-        B = compute_amortized_loan(1000, 0.05, 'quarterly', 'monthly', 3*12, fee=10,
-          start_date=start_date)
+        A = summarize_amortized_loan(1000, 0.05, 'quarterly', 'monthly', 3*12, fee=10,
+          first_payment_date=first_payment_date)
+        B = summarize_amortized_loan(1000, 0.05, 'quarterly', 'monthly', 3*12, fee=10,
+          first_payment_date=first_payment_date)
         f = aggregate_payment_schedules([A['payment_schedule'],
           B['payment_schedule']])
         expect_cols = {

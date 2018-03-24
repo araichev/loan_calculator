@@ -1,41 +1,20 @@
 import math
+from copy import copy
 
 import numpy as np
 import pandas as pd
 
+from . import constants as cs
+
 
 def freq_to_num(freq, allow_cts=False):
     """
-    Map frequency name to number of occurrences per year via::
-
-        {
-            'annually': 1,
-            'semiannually': 2,
-            'triannually': 3,
-            'quarterly': 4,
-            'bimonthly': 6,
-            'monthly': 12,
-            'fortnightly': 26,
-            'weekly': 52,
-            'daily': 365,
-            'continuously': numpy.inf
-        }.
-
+    Map frequency name to number of occurrences per year via
+    :const:`NUM_BY_FREQ`.
     If not ``allow_cts``, then remove the ``'continuouly'`` option.
     Raise a ``ValueError`` in case of no frequency match.
     """
-    d = {
-        'annually': 1,
-        'semiannually': 2,
-        'triannually': 3,
-        'quarterly': 4,
-        'bimonthly': 6,
-        'monthly': 12,
-        'fortnightly': 26,
-        'weekly': 52,
-        'daily': 365,
-        'continuously': np.inf,
-    }
+    d = copy(cs.NUM_BY_FREQ)
     if not allow_cts:
         del d['continuously']
 
@@ -96,7 +75,10 @@ def build_principal_fn(principal, interest_rate, compounding_freq,
     n = num_payments
 
     def p(t):
-        return P*(1 - ((1 + I)**t - 1)/((1 + I)**n - 1))
+        if I == 0:
+            return P - t*P/n
+        else:
+            return P*(1 - ((1 + I)**t - 1)/((1 + I)**n - 1))
 
     return p
 
@@ -105,12 +87,15 @@ def amortize(principal, interest_rate, compounding_freq, payment_freq,
     """
     Given the loan parameters
 
-    - ``principal``: amount of loan (the principal)
-    - ``interest_rate``: nominal annual interest rate (not as a percent),
-      e.g. 0.1 for 10%
-    - ``compounding_freq``: number of interest compoundings per year
-    - ``payment_freq``: number of payments per year
-    - ``num_payments``: number of payments in the loan term,
+    - ``principal``: (float) amount of loan, that is, the principal
+    - ``interest_rate``: (float) nominal annual interest rate
+      (not as a percentage), e.g. 0.1 for 10%
+    - ``compounding_freq``: (string) compounding frequency;
+      one of the keys of :const:`NUM_BY_FREQ`, e.g. 'monthly'
+    - ``payment_freq``: (string) payments frequency;
+      one of the keys of :const:`NUM_BY_FREQ`, e.g. 'monthly'
+    - ``num_payments``: (integer) number of payments in the loan
+      term
 
     return the periodic payment amount due to
     amortize the loan into equal payments occurring at the frequency
@@ -126,10 +111,15 @@ def amortize(principal, interest_rate, compounding_freq, payment_freq,
     I = compute_period_interest_rate(interest_rate, compounding_freq,
       payment_freq)
     n = num_payments
-    return P*I/(1 - (1 + I)**(-n))
+    if I == 0:
+        A = P/n
+    else:
+        A = P*I/(1 - (1 + I)**(-n))
 
-def compute_amortized_loan(principal, interest_rate,
-  compounding_freq, payment_freq, num_payments, fee=0, start_date=None,
+    return A
+
+def summarize_amortized_loan(principal, interest_rate,
+  compounding_freq, payment_freq, num_payments, fee=0, first_payment_date=None,
   decimals=2):
     """
     Amortize a loan with the given parameters according to the function
@@ -168,10 +158,10 @@ def compute_amortized_loan(principal, interest_rate,
     )
 
     date_offset = to_date_offset(freq_to_num(payment_freq))
-    if start_date and date_offset:
+    if first_payment_date and date_offset:
         # Kludge for pd.date_range not working easily here;
         # see https://github.com/pandas-dev/pandas/issues/2289
-        f['payment_date'] = [pd.Timestamp(start_date)
+        f['payment_date'] = [pd.Timestamp(first_payment_date)
           + j*date_offset for j in range(n)]
 
         # Put payment date first
@@ -199,8 +189,8 @@ def compute_amortized_loan(principal, interest_rate,
 
     return d
 
-def compute_interest_only_loan(principal, interest_rate,
-  payment_freq, num_payments, fee=0, start_date=None,
+def summarize_interest_only_loan(principal, interest_rate,
+  payment_freq, num_payments, fee=0, first_payment_date=None,
   decimals=2):
     """
     Create a payment schedule etc. for an interest-only loan
@@ -235,10 +225,10 @@ def compute_interest_only_loan(principal, interest_rate,
     f.ending_balance.iat[-1] = 0
 
     date_offset = to_date_offset(k)
-    if start_date and date_offset:
+    if first_payment_date and date_offset:
         # Kludge for pd.date_range not working easily here;
         # see https://github.com/pandas-dev/pandas/issues/2289
-        f['payment_date'] = [pd.Timestamp(start_date)
+        f['payment_date'] = [pd.Timestamp(first_payment_date)
           + j*date_offset for j in range(n)]
 
         # Put payment date first
@@ -270,7 +260,8 @@ def aggregate_payment_schedules(payment_schedules, freq=None):
     Given a list of payment schedules in the form output by the
     function :func:`amortize` do the following.
     If all the schedules have a payment date column, then group by
-    payment date and resample at the given frequency by summing.
+    payment date and resample at the given Pandas frequency
+    (not a frequency in :const:`NUM_BY_FREQ`) by summing.
     Otherwise, group by payment sequence and sum.
     Return resulting DataFrame with the columns
 
