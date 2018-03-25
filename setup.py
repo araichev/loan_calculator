@@ -19,5 +19,6 @@ setup(
     packages=find_packages(exclude=('tests', 'docs')),
     install_requires=[
         'pandas >= 0.22',
+        'voluptuous >= 0.11.1',
     ],
 )
