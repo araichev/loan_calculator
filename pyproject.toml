@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "payulator"
+version = "3.0.0"
+description = "A Python 3.6+ loan calculator"
+authors = ["Alex Raichev <alex@raichev.net>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+pandas = "^0.24.1"
+voluptuous = "^0.11.5"
+
+[tool.poetry.dev-dependencies]
+jupyter = "^1.0"
+pytest = "^4.3"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

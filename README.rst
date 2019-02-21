@@ -6,13 +6,13 @@ Payulator
 .. image:: https://travis-ci.org/araichev/payulator.svg?branch=master
     :target: https://travis-ci.org/araichev/payulator
 
-A small Python 3.5+ library that calculates loan payments.
+A small Python 3.6+ library that calculates loan payments.
 Similar to the business loan calculator at `Calculator.net <https://www.calculator.net/business-loan-calculator.html>`_.
 
 
 Installation
 =============
-Using Pipenv, do ``pipenv install git+https://github.com/araichev/payulator#egg=payulator``
+Using Poetry, do ``poetry install --git https://github.com/araichev/payulator yayulator``
 
 
 Usage
@@ -29,24 +29,30 @@ Author
 Changes
 =======
 
-v3.0.0, 2018-03-24
--------------------
+3.0.1, 2019-02-22
+-----------------
+- Switched to Poetry
+- Switched to Python 3.6
+
+
+3.0.0, 2018-03-24
+-----------------
 - Changed function names
 - Added a Loan class
 
 
-v2.0.0, 2018-03-10
--------------------
+2.0.0, 2018-03-10
+-----------------
 - Changed function names
 - Replaced number of years with number of payments
 - Added a function to compute interest-only loans
 
 
-v1.1.0, 2018-03-03
--------------------
+1.1.0, 2018-03-03
+-----------------
 - Added the function ``aggregate_payment_schedules``
 
 
-v1.0.0, 2018-01-27
--------------------
+1.0.0, 2018-01-27
+------------------
 - First release
