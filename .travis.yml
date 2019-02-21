@@ -2,14 +2,11 @@ notifications:
   email: false
 language: python
 python:
-  - "3.4"
-  - "3.5"
   - "3.6"
 # command to install dependencies
+before_install:
+- pip install poetry
 install:
-  - pip install pipenv
-  - travis_retry travis_wait pipenv install
-
+- poetry install -v
 # command to run tests
-script:
-  - pipenv run pytest
+script: pytest --runslow

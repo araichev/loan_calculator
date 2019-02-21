@@ -28,7 +28,7 @@ Authors
 
 Documentation
 =============
-At
+On Github Pages `here <https://raichev.net/payulator_docs/>`_.
 
 
 Changes
