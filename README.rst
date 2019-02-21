@@ -1,5 +1,5 @@
 Payulator
-****************
+*********
 .. image:: http://mybinder.org/badge.svg
     :target: http://mybinder.org:/repo/araichev/payulator
 
@@ -11,7 +11,7 @@ Similar to the business loan calculator at `Calculator.net <https://www.calculat
 
 
 Installation
-=============
+============
 Using Poetry, do ``poetry install --git https://github.com/araichev/payulator yayulator``
 
 
@@ -21,9 +21,14 @@ Play with the examples in the Jupyter notebook at ``ipynb/examples.ipynb``
 You can even do so online by clicking the Binder badge above.
 
 
-Author
+Authors
 =======
 - Alex Raichev, 2018-01-20
+
+
+Documentation
+=============
+At
 
 
 Changes
@@ -33,6 +38,7 @@ Changes
 -----------------
 - Switched to Poetry
 - Switched to Python 3.6
+- Used data class
 
 
 3.0.0, 2018-03-24
