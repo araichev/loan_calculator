@@ -178,7 +178,7 @@ def prune_loan_params(params):
 def build_loan(path):
     """
     Given the path to a JSON file encoding the parameters
-    of a loan, read the file, check the paramaters,
+    of a loan, read the file, check the parameters,
     and return a Loan instance with those parameters.
 
     The keys and values of the JSON dictionary should contain
