@@ -12,7 +12,7 @@ Similar to the business loan calculator at `Calculator.net <https://www.calculat
 
 Installation
 ============
-Using Poetry, do ``poetry install --git https://github.com/araichev/payulator payulator``
+``pip install payulator``
 
 
 Usage

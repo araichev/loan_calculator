@@ -9,7 +9,7 @@ from pandas import DataFrame
 from . import constants as cs
 
 
-def freq_to_num(freq: str, *, allow_cts: bool = False) -> Union[int, np.inf]:
+def freq_to_num(freq: str, *, allow_cts: bool = False) -> Union[int, float]:
     """
     Map frequency name to number of occurrences per year via
     :const:`NUM_BY_FREQ`.
