@@ -39,6 +39,7 @@ Changes
 - Added a ``fee_payment`` column to payment schedules. It's debatable whether this is a breaking change. I'll say no.
 - Added date slicing to the function ``aggregate_payment_schedules`` and some cumulative sum columns to the output. It's debatable whether the latter is a breaking change. I'll say no.
 - Added more type hints.
+- Published to PyPI.
 
 
 3.1.0, 2019-02-22
