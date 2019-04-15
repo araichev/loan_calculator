@@ -9,4 +9,4 @@ before_install:
 install:
 - poetry install -v
 # command to run tests
-script: pytest --runslow
+script: pytest

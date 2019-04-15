@@ -5,7 +5,7 @@ from collections import OrderedDict
 from pathlib import Path
 import numbers
 import json
-from typing import Optional
+from typing import Optional, Dict
 
 import pandas as pd
 import voluptuous as vt
@@ -57,13 +57,13 @@ class Loan:
         if self.compounding_freq is None:
             self.compounding_freq = self.payment_freq
 
-    def to_dict(self):
+    def to_dict(self) -> Dict:
         """
         Return a dictionary of this Loan's attributes.
         """
         return self.__dict__
 
-    def summarize(self, decimals=2):
+    def summarize(self, decimals: int = 2) -> Dict:
         """
         Return the result of :func:`helpers.summarize_amortized_loan`
         is this Loan is amortized or
@@ -96,7 +96,7 @@ class Loan:
         return result
 
 
-def check_loan_params(params):
+def check_loan_params(params: Dict) -> Dict:
     """
     Given a dictionary of the form loan_attribute -> value,
     check the keys and values according to the specification
@@ -161,7 +161,7 @@ def check_loan_params(params):
     return params
 
 
-def prune_loan_params(params):
+def prune_loan_params(params: Dict) -> Dict:
     """
     Given a dictionary of loan parameters, remove the keys
     not in :const:`LOAN_ATTRS` and return the resulting,
@@ -175,7 +175,7 @@ def prune_loan_params(params):
     return new_params
 
 
-def build_loan(path):
+def build_loan(path: Path) -> "Loan":
     """
     Given the path to a JSON file encoding the parameters
     of a loan, read the file, check the parameters,
