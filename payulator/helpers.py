@@ -1,6 +1,6 @@
 import math
 from copy import copy
-from typing import List
+from typing import List, Union, Optional
 
 import numpy as np
 import pandas as pd
@@ -9,7 +9,7 @@ from pandas import DataFrame
 from . import constants as cs
 
 
-def freq_to_num(freq, allow_cts=False):
+def freq_to_num(freq: str, *, allow_cts: bool = False) -> Union[int, np.inf]:
     """
     Map frequency name to number of occurrences per year via
     :const:`NUM_BY_FREQ`.
@@ -28,7 +28,7 @@ def freq_to_num(freq, allow_cts=False):
         )
 
 
-def to_date_offset(num_per_year):
+def to_date_offset(num_per_year: int) -> Union[pd.DateOffset, None]:
     """
     Convert the given number of occurrences per year to its
     corresponding period (Pandas DateOffset object),
@@ -50,7 +50,9 @@ def to_date_offset(num_per_year):
     return d
 
 
-def compute_period_interest_rate(interest_rate, compounding_freq, payment_freq):
+def compute_period_interest_rate(
+    interest_rate: float, compounding_freq: str, payment_freq: str
+) -> float:
     """
     Compute the interest rate per payment period given
     an annual interest rate, a compounding frequency, and a payment
@@ -68,7 +70,11 @@ def compute_period_interest_rate(interest_rate, compounding_freq, payment_freq):
 
 
 def build_principal_fn(
-    principal, interest_rate, compounding_freq, payment_freq, num_payments
+    principal: float,
+    interest_rate: float,
+    compounding_freq: str,
+    payment_freq: str,
+    num_payments: int,
 ):
     """
     Compute the remaining loan principal, the loan balance,
@@ -88,7 +94,13 @@ def build_principal_fn(
     return p
 
 
-def amortize(principal, interest_rate, compounding_freq, payment_freq, num_payments):
+def amortize(
+    principal: float,
+    interest_rate: float,
+    compounding_freq: str,
+    payment_freq: str,
+    num_payments: str,
+) -> float:
     """
     Given the loan parameters
 
@@ -124,15 +136,15 @@ def amortize(principal, interest_rate, compounding_freq, payment_freq, num_payme
 
 
 def summarize_amortized_loan(
-    principal,
-    interest_rate,
-    compounding_freq,
-    payment_freq,
-    num_payments,
-    fee=0,
-    first_payment_date=None,
-    decimals=2,
-):
+    principal: float,
+    interest_rate: float,
+    compounding_freq: str,
+    payment_freq: str,
+    num_payments: str,
+    fee: float = 0,
+    first_payment_date: Optional[str] = None,
+    decimals: int = 2,
+) -> DataFrame:
     """
     Amortize a loan with the given parameters according to the function
     :func:`amortize`, and return a dictionary with the following keys
@@ -224,14 +236,14 @@ def summarize_amortized_loan(
 
 
 def summarize_interest_only_loan(
-    principal,
-    interest_rate,
-    payment_freq,
-    num_payments,
-    fee=0,
-    first_payment_date=None,
-    decimals=2,
-):
+    principal: float,
+    interest_rate: float,
+    payment_freq: str,
+    num_payments: int,
+    fee: float = 0,
+    first_payment_date: Optional[str] = None,
+    decimals: int = 2,
+) -> DataFrame:
     """
     Create a payment schedule etc. for an interest-only loan
     with the given parameters (see the doctstring of :func:`amortize`).
@@ -320,7 +332,7 @@ def aggregate_payment_schedules(
     start_date: str = None,
     end_date: str = None,
     freq: str = None,
-):
+) -> DataFrame:
     """
     Given a list of payment schedules in the form output by the
     function :func:`summarize_amortized_loan` do the following.

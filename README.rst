@@ -12,7 +12,7 @@ Similar to the business loan calculator at `Calculator.net <https://www.calculat
 
 Installation
 ============
-Using Poetry, do ``poetry install --git https://github.com/araichev/payulator yayulator``
+Using Poetry, do ``poetry install --git https://github.com/araichev/payulator payulator``
 
 
 Usage
@@ -34,14 +34,14 @@ On Github Pages `here <https://raichev.net/payulator_docs/>`_.
 Changes
 =======
 
-3.1.0, 2019-04-15
+3.2.0, 2019-04-15
 -----------------
 - Added a ``fee_payment`` column to payment schedules. It's debatable whether this is a breaking change. I'll say no.
 - Added date slicing to the function ``aggregate_payment_schedules`` and some cumulative sum columns to the output. It's debatable whether the latter is a breaking change. I'll say no.
 - Added more type hints.
 
 
-3.0.1, 2019-02-22
+3.1.0, 2019-02-22
 -----------------
 - Switched to Poetry
 - Switched to Python 3.6

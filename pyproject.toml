@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "payulator"
-version = "3.1.0"
+version = "3.2.0"
 description = "A Python 3.6+ loan calculator"
 authors = ["Alex Raichev <alex@raichev.net>"]
 license = "MIT"
