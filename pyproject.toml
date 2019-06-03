@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "payulator"
-version = "3.1.0"
+version = "3.3.0"
 description = "A Python 3.6+ loan calculator"
 authors = ["Alex Raichev <alex@raichev.net>"]
 license = "MIT"
@@ -8,15 +8,15 @@ readme = "README.rst"
 
 [tool.poetry.dependencies]
 python = "^3.6"
-pandas = "^0.24.1"
-voluptuous = "^0.11.5"
-dataclasses = "^0.6.0"
+pandas = "^0.24"
+voluptuous = "^0.11"
+dataclasses = "^0.6"
 
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0"
 pytest = "^4.3"
-black = "=18.9b0"
-pre-commit = "^1.14"
+black = "=19.3b0"
+pre-commit = "^1"
 publish_sphinx_docs = "^1.0"
 sphinx = "^1.8"
 
