@@ -1,6 +1,6 @@
 import math
 from copy import copy
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Dict
 
 import numpy as np
 import pandas as pd
@@ -144,24 +144,25 @@ def summarize_amortized_loan(
     fee: float = 0,
     first_payment_date: Optional[str] = None,
     decimals: int = 2,
-) -> DataFrame:
+) -> Dict:
     """
     Amortize a loan with the given parameters according to the function
     :func:`amortize`, and return a dictionary with the following keys
     and values:
 
-    - ``"periodic_payment"``: periodic payment amount according to
-      amortization
     - ``"payment_schedule"``: DataFrame; schedule of loan payments
       broken into principal payments and interest payments
+    - ``"periodic_payment"``: periodic payment amount according to
+      amortization
     - ``"interest_total"``: total interest paid on loan
     - ``"interest_and_fee_total"``: interest_total plus loan fee
     - ``"payment_total"``: total of all loan payments, including the
       loan fee
     - ``"interest_and_fee_total/principal``
-    - ``"notes"``: NaN for future notes
+    - ``"first_payment_date"`` (optional): first payment date (as as YYYY-MM-DD) string if one is given
+    - ``"last_payment_date"`` (optional): last payment date (as as YYYY-MM-DD) string if a first payment date is given
 
-    If a start date is given (YYYY-MM-DD string), then include payment
+    If a first payment date is given (YYYY-MM-DD string), then include payment
     dates in the payment schedule.
     Round all values to the given number of decimal places, but do not
     round if ``decimals is None``.
@@ -218,18 +219,21 @@ def summarize_amortized_loan(
 
     # Bundle result into dictionary
     d = {}
-    d["periodic_payment"] = A
     d["payment_schedule"] = f
+    d["periodic_payment"] = A
     d["interest_total"] = f["interest_payment"].sum()
     d["interest_and_fee_total"] = d["interest_total"] + fee
     d["payment_total"] = d["interest_and_fee_total"] + principal
     d["interest_and_fee_total/principal"] = d["interest_and_fee_total"] / principal
+    if "payment_date" in f:
+        d["first_payment_date"] = f.payment_date.iat[0].strftime("%Y-%m-%d")
+        d["last_payment_date"] = f.payment_date.iat[-1].strftime("%Y-%m-%d")
 
     if decimals is not None:
         for key, val in d.items():
             if isinstance(val, pd.DataFrame):
                 d[key] = val.round(decimals)
-            else:
+            elif isinstance(val, float):
                 d[key] = round(val, 2)
 
     return d
@@ -243,7 +247,7 @@ def summarize_interest_only_loan(
     fee: float = 0,
     first_payment_date: Optional[str] = None,
     decimals: int = 2,
-) -> DataFrame:
+) -> Dict:
     """
     Create a payment schedule etc. for an interest-only loan
     with the given parameters (see the doctstring of :func:`amortize`).
@@ -251,12 +255,14 @@ def summarize_interest_only_loan(
 
     - ``"payment_schedule"``: DataFrame; schedule of loan payments
       broken into principal payments and interest payments
+    - ``"periodic_payment"``: the periodic interest payment
     - ``"interest_total"``: total interest paid on loan
     - ``"interest_and_fee_total"``: interest_total plus loan fee
     - ``"payment_total"``: total of all loan payments, including the
       loan fee
     - ``"interest_and_fee_total/principal``: interest_and_fee_total/principal
-    - ``"notes"``: NaN for future notes
+    - ``"first_payment_date"`` (optional): first payment date (as as YYYY-MM-DD) string if one is given
+    - ``"last_payment_date"`` (optional): last payment date (as as YYYY-MM-DD) string if a first payment date is given
 
     If a start date is given (YYYY-MM-DD string), then include payment
     dates in the payment schedule.
@@ -312,16 +318,20 @@ def summarize_interest_only_loan(
     # Bundle result into dictionary
     d = {}
     d["payment_schedule"] = f
+    d["periodic_payment"] = A
     d["interest_total"] = f["interest_payment"].sum()
     d["interest_and_fee_total"] = d["interest_total"] + fee
     d["payment_total"] = d["interest_and_fee_total"] + principal
     d["interest_and_fee_total/principal"] = d["interest_and_fee_total"] / principal
+    if "payment_date" in f:
+        d["first_payment_date"] = f.payment_date.iat[0].strftime("%Y-%m-%d")
+        d["last_payment_date"] = f.payment_date.iat[-1].strftime("%Y-%m-%d")
 
     if decimals is not None:
         for key, val in d.items():
             if isinstance(val, pd.DataFrame):
                 d[key] = val.round(decimals)
-            else:
+            elif isinstance(val, float):
                 d[key] = round(val, 2)
 
     return d

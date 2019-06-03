@@ -78,7 +78,7 @@ def test_build_principal_fn():
 def test_summarize_amortized_loan():
     # Compare a few outputs to those of
     # https://www.calculator.net/business-loan-calculator.html
-    A = summarize_amortized_loan(
+    s = summarize_amortized_loan(
         1000,
         0.05,
         "quarterly",
@@ -88,19 +88,21 @@ def test_summarize_amortized_loan():
         first_payment_date="2018-01-01",
     )
     expect_keys = {
-        "periodic_payment",
         "payment_schedule",
+        "periodic_payment",
         "interest_total",
         "interest_and_fee_total",
         "payment_total",
         "interest_and_fee_total/principal",
+        "first_payment_date",
+        "last_payment_date",
     }
-    assert set(A.keys()) == expect_keys
-    assert round(A["periodic_payment"], 2) == 29.96
-    assert round(A["interest_and_fee_total"], 2) == 88.62
+    assert set(s.keys()) == expect_keys
+    assert round(s["periodic_payment"], 2) == 29.96
+    assert round(s["interest_and_fee_total"], 2) == 88.62
 
     # Check payment schedule
-    f = A["payment_schedule"]
+    f = s["payment_schedule"]
     assert set(f.columns) == {
         "payment_sequence",
         "payment_date",
@@ -117,21 +119,24 @@ def test_summarize_amortized_loan():
 
 
 def test_summarize_interest_only_loan():
-    A = summarize_interest_only_loan(
+    s = summarize_interest_only_loan(
         100, 0.12, "monthly", 12, fee=13, first_payment_date="2018-01-01"
     )
     expect_keys = {
         "payment_schedule",
+        "periodic_payment",
         "interest_total",
         "interest_and_fee_total",
         "payment_total",
         "interest_and_fee_total/principal",
+        "first_payment_date",
+        "last_payment_date",
     }
-    assert set(A.keys()) == expect_keys
-    assert round(A["interest_and_fee_total"], 2) == 25
+    assert set(s.keys()) == expect_keys
+    assert round(s["interest_and_fee_total"], 2) == 25
 
     # Check payment schedule
-    f = A["payment_schedule"]
+    f = s["payment_schedule"]
     assert set(f.columns) == {
         "payment_sequence",
         "payment_date",

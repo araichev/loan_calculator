@@ -57,12 +57,6 @@ class Loan:
         if self.compounding_freq is None:
             self.compounding_freq = self.payment_freq
 
-    def to_dict(self) -> Dict:
-        """
-        Return a dictionary of this Loan's attributes.
-        """
-        return self.__dict__
-
     def summarize(self, decimals: int = 2) -> Dict:
         """
         Return the result of :func:`helpers.summarize_amortized_loan`
