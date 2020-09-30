@@ -1,15 +1,7 @@
-from collections import OrderedDict
-
-import pandas as pd
-import voluptuous as vt
 import pytest
 
 from .context import payulator, ROOT
 from payulator import *
-
-
-def test_to_dict():
-    assert isinstance(Loan().to_dict(), dict)
 
 
 def test_summarize():
