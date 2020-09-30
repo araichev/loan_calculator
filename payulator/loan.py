@@ -1,7 +1,6 @@
 """
 Module defining the Loan class.
 """
-from collections import OrderedDict
 from pathlib import Path
 import numbers
 import json

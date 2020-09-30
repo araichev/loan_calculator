@@ -6,13 +6,13 @@ Payulator
 .. image:: https://travis-ci.org/araichev/payulator.svg?branch=master
     :target: https://travis-ci.org/araichev/payulator
 
-A small Python 3.6+ library that calculates loan payments.
+A small Python 3.8+ library that calculates loan payments.
 Similar to the business loan calculator at `Calculator.net <https://www.calculator.net/business-loan-calculator.html>`_.
 
 
 Installation
 ============
-``pip install payulator``
+``poetry add payulator``
 
 
 Usage
@@ -33,6 +33,11 @@ On Github Pages `here <https://raichev.net/payulator_docs/>`_.
 
 Changes
 =======
+
+3.4.0, 2020-09-30
+-----------------
+- Updated dependencies.
+
 
 3.3.0, 2019-06-04
 -----------------
